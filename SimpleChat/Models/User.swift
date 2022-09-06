@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct User: Equatable {
+struct User: Codable {
     var id: String
     var username: String
     var avatarUrl: String
     var isModerator: Bool
 
-    init(username: String, avatarUrl: String = Constants.userAvatarUrls[0]) {
-        self.id = UUID().uuidString
+    init(id: String = UUID().uuidString, username: String, avatarUrl: String = Constants.userAvatarUrls[0]) {
+        self.id = id
         self.username = username
         self.avatarUrl = avatarUrl
         self.isModerator = true

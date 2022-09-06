@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MessageActionsView: View {
-    @StateObject var websocket: WebSocketModel
+    @EnvironmentObject var viewModel: ViewModel
     @Binding var selectedMessage: Message?
 
     var body: some View {
@@ -24,7 +24,7 @@ struct MessageActionsView: View {
                 VStack(spacing: 15) {
                     if let message = selectedMessage {
                         Button(action: {
-                            websocket.delete(message: message.id)
+                            viewModel.delete(message: message.id)
                             withAnimation { selectedMessage = nil }
                         }) {
                             Text("Delete message")
@@ -32,7 +32,7 @@ struct MessageActionsView: View {
                         }
 
                         Button(action: {
-                            websocket.kick(user: message.sender.userId)
+                            viewModel.kick(user: message.sender.id)
                             withAnimation { selectedMessage = nil }
                         }) {
                             Text("Kick user")
@@ -54,6 +54,6 @@ struct MessageActionsView: View {
                 .padding(.horizontal, 16)
             }
         })
-            .animation(.easeOut(duration: 0.3))
+            .animation(.easeOut(duration: 0.3), value: selectedMessage)
     }
 }

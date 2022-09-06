@@ -31,24 +31,24 @@ struct ContentView: View {
         ZStack {
             Constants.background.ignoresSafeArea()
 
-            PlayerView(viewModel: viewModel)
+            PlayerView()
                 .onAppear {
                     viewModel.startPlayback()
                 }
 
             VStack {
-                MessagesView(websocket: viewModel.websocket, selectedMessage: $selectedMessage)
+                MessagesView(selectedMessage: $selectedMessage)
                     .padding(.bottom, 20)
                 BottomBarView(viewModel: viewModel, keyboard: keyboard, isLoginPresent: $isLoginPresent, isStickersPresent: $isStickersPresent)
                     .padding(.bottom, 24)
 
                 if isStickersPresent {
-                    StickersView(viewModel: viewModel)
+                    StickersView()
                 }
             }
             .overlay(topBar(), alignment: .topTrailing)
-            .overlay(NotificationsView(websocket: viewModel.websocket), alignment: .top)
-            .animation(.easeOut(duration: 0.3))
+            .overlay(NotificationsView(), alignment: .top)
+            .animation(.easeOut(duration: 0.3), value: isStickersPresent)
             .padding(.bottom, keyboard.currentHeight)
             .onTapGesture {
                 UIApplication.shared
@@ -60,13 +60,13 @@ struct ContentView: View {
             })
 
             if let _ = selectedMessage {
-                MessageActionsView(websocket: viewModel.websocket, selectedMessage: $selectedMessage)
+                MessageActionsView(selectedMessage: $selectedMessage)
             }
 
             if isLoginPresent {
-                LoginView(viewModel: _viewModel, isPresent: $isLoginPresent)
+                LoginView(isPresent: $isLoginPresent)
                     .padding(.bottom, keyboard.currentHeight * 0.7)
-                    .onChange(of: viewModel.websocket.errorMessage) { errorMessage in
+                    .onChange(of: viewModel.errorMessage) { errorMessage in
                         isLoginPresent = errorMessage == nil
                     }
             }
@@ -74,5 +74,9 @@ struct ContentView: View {
         }
         .ignoresSafeArea(.all)
         .frame(maxWidth: UIScreen.main.bounds.width)
+        .environmentObject(viewModel)
+        .onAppear {
+            viewModel.connectToChatRoom()
+        }
     }
 }

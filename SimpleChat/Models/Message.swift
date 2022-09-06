@@ -15,8 +15,8 @@ enum MessageType: String {
     case message = "MESSAGE", sticker = "STICKER"
 }
 
-struct Message: Decodable, Identifiable, Equatable, Hashable {
-    struct Sender: Decodable {
+struct Message: Identifiable, Equatable, Hashable {
+    struct Sender {
         struct Attributes: Decodable {
             let avatar: String
             let username: String
@@ -24,25 +24,15 @@ struct Message: Decodable, Identifiable, Equatable, Hashable {
 
         let userId: String
         let attributes: Attributes
-
-        private enum CodingKeys: String, CodingKey {
-            case userId = "UserId", attributes = "Attributes"
-        }
     }
 
-    struct Attributes: Decodable {
+    struct Attributes {
         let type: MessageType
         let stickerSrc: String
 
-        init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            let rawType = try container.decode(String.self, forKey: .type)
-            self.type = MessageType(rawValue: rawType) ?? .message
-            self.stickerSrc = try container.decode(String.self, forKey: .stickerSrc)
-        }
-
-        private enum CodingKeys: String, CodingKey {
-            case type = "message_type", stickerSrc = "sticker_src"
+        init(type: MessageType, stickerSrc: String) {
+            self.type = type
+            self.stickerSrc = stickerSrc
         }
     }
 
@@ -53,19 +43,24 @@ struct Message: Decodable, Identifiable, Equatable, Hashable {
     let content: String
     let attributes: Attributes?
     let sendTime: String
-    let sender: Sender
+    let sender: User
 
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decode(String.self, forKey: .id)
-        self.objectType = .message
-        let rawType = try container.decode(String.self, forKey: .type)
-        self.type = MessageType(rawValue: rawType) ?? .message
-        self.requestId = try container.decode(String.self, forKey: .requestId)
-        self.content = try container.decode(String.self, forKey: .content)
-        self.attributes = try? container.decode(Attributes.self, forKey: .attributes)
-        self.sendTime = try container.decode(String.self, forKey: .sendTime)
-        self.sender = try container.decode(Sender.self, forKey: .sender)
+    init(id: String,
+         objectType: MessageObjectType,
+         type: MessageType,
+         requestId: String,
+         content: String,
+         attributes: Attributes?,
+         sendTime: String,
+         sender: User) {
+        self.id = id
+        self.objectType = objectType
+        self.type = type
+        self.requestId = requestId
+        self.content = content
+        self.attributes = attributes
+        self.sendTime = sendTime
+        self.sender = sender
     }
 
     static func == (lhs: Message, rhs: Message) -> Bool {
@@ -74,16 +69,6 @@ struct Message: Decodable, Identifiable, Equatable, Hashable {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case id = "Id"
-        case type = "Type"
-        case requestId = "RequestId"
-        case content = "Content"
-        case attributes = "Attributes"
-        case sendTime = "SendTime"
-        case sender = "Sender"
     }
 }
 

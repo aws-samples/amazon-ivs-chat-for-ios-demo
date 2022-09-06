@@ -3,7 +3,8 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '14.0'
 
 target 'SimpleChat' do
-    pod 'AmazonIVSPlayer', '~> 1.8.2'
+    pod 'AmazonIVSChat', '~> 1.0.0'
+    pod 'AmazonIVSPlayer', '~> 1.8.3'
 end
 
 # Allow building for arm64e architecture, which AmazonIVSPlayer supports.

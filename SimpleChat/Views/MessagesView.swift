@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MessagesView: View {
-    @StateObject var websocket: WebSocketModel
+    @EnvironmentObject var viewModel: ViewModel
     @Binding var selectedMessage: Message?
 
     var body: some View {
@@ -16,10 +16,9 @@ struct MessagesView: View {
             ScrollViewReader { proxy in
                 ScrollView(.vertical, showsIndicators: false) {
                     LazyVStack(alignment: .leading) {
-                        ForEach(websocket.messages, id: \.self) { messageObject in
+                        ForEach(viewModel.messages, id: \.self) { messageObject in
                             if let message = messageObject as? Message {
                                 MessageView(
-                                    websocket: websocket,
                                     message: message,
                                     selectedMessage: $selectedMessage)
                             } else if let success = messageObject as? SuccessMessage {
@@ -37,8 +36,8 @@ struct MessagesView: View {
                 .padding(.horizontal, 16)
                 .rotationEffect(.radians(.pi))
                 .scaleEffect(x: -1, y: 1, anchor: .center)
-                .onChange(of: websocket.messages, perform: { _ in
-                    guard let lastMessage = websocket.messages.last as? Message else { return }
+                .onChange(of: viewModel.messages, perform: { _ in
+                    guard let lastMessage = viewModel.messages.last as? Message else { return }
                     withAnimation {
                         proxy.scrollTo(lastMessage.id, anchor: .bottom)
                     }
@@ -49,7 +48,7 @@ struct MessagesView: View {
 }
 
 struct MessageView: View {
-    @StateObject var websocket: WebSocketModel
+    @EnvironmentObject var viewModel: ViewModel
     @State var message: Message
     @Binding var selectedMessage: Message?
 
@@ -73,7 +72,7 @@ struct MessageView: View {
             }
         }
         .onLongPressGesture {
-            guard let user = websocket.viewModel?.user, user.isModerator else { return }
+            guard let user = viewModel.user, user.isModerator else { return }
             withAnimation {
                 selectedMessage = message
             }
@@ -87,11 +86,11 @@ struct MessagePreviewView: View {
 
     var body: some View {
         HStack(alignment: message.attributes?.type ?? .message == .sticker ? .center : .top) {
-            RemoteImageView(imageURL: message.sender.attributes.avatar)
+            RemoteImageView(imageURL: message.sender.avatarUrl)
                 .frame(width: 32, height: 32)
                 .cornerRadius(42)
             if message.attributes?.type ?? .message == .sticker {
-                Text(message.sender.attributes.username)
+                Text(message.sender.username)
                     .frame(height: 32)
                     .foregroundColor(.black)
                     .font(Constants.fAppBold)
@@ -99,7 +98,7 @@ struct MessagePreviewView: View {
 
             switch message.attributes?.type ?? .message {
                 case .message:
-                    Text("\(Text(message.sender.attributes.username).font(Constants.fAppBold)) \(message.content)")
+                    Text("\(Text(message.sender.username).font(Constants.fAppBold)) \(message.content)")
                         .font(Constants.fAppRegular)
                         .foregroundColor(.white)
                         .padding(.vertical, 8)

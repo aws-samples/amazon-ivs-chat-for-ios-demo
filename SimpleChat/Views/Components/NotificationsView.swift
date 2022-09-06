@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct NotificationsView: View {
-    @StateObject var websocket: WebSocketModel
+    @EnvironmentObject var viewModel: ViewModel
     @ObservedObject var network = NetworkConnection()
 
     var body: some View {
@@ -17,19 +17,19 @@ struct NotificationsView: View {
                 NotificationView(title: "ERROR", image: Image("alert"), message: "No network connection")
             }
 
-            if let error = websocket.errorMessage {
+            if let error = viewModel.errorMessage {
                 NotificationView(title: "ERROR", image: Image("alert"), message: error)
                     .onTapGesture {
-                        websocket.errorMessage = nil
+                        viewModel.errorMessage = nil
                     }
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.messagesTimeout) {
-                            websocket.errorMessage = nil
+                            viewModel.errorMessage = nil
                         }
                     }
             }
 
-            if let successMessage = websocket.successMessage {
+            if let successMessage = viewModel.successMessage {
                 NotificationView(
                     title: "SUCCESS",
                     image: Image("info"),
@@ -37,11 +37,11 @@ struct NotificationsView: View {
                     backgroundColor: Constants.appGreen
                 )
                     .onTapGesture {
-                        websocket.successMessage = nil
+                        viewModel.successMessage = nil
                     }
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.messagesTimeout) {
-                            websocket.successMessage = nil
+                            viewModel.successMessage = nil
                         }
                     }
             }

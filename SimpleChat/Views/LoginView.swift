@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @StateObject var viewModel: ViewModel
+    @EnvironmentObject var viewModel: ViewModel
     @Binding var isPresent: Bool
 
     @State var newUser: User
@@ -17,8 +17,7 @@ struct LoginView: View {
 
     private let horizontalPadding: CGFloat = 16
 
-    init(viewModel: StateObject<ViewModel>, isPresent: Binding<Bool>) {
-        self._viewModel = viewModel
+    init(isPresent: Binding<Bool>) {
         self._isPresent = isPresent
         self.newUser = User(username: "")
     }

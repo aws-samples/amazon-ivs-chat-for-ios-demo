@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PlayerView: View {
-    @StateObject var viewModel: ViewModel
+    @EnvironmentObject var viewModel: ViewModel
 
     var body: some View {
         IVSPlayerViewWrapper(playerView: viewModel.playerModel.playerView)

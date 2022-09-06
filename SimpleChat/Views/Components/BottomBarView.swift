@@ -17,7 +17,7 @@ struct BottomBarView: View {
 
     private func send() {
         if let user = viewModel.user, !messageText.isEmpty {
-            viewModel.websocket.sendMessage(messageText, type: .message, avatarUrl: user.avatarUrl)
+            viewModel.sendMessage(messageText, type: .message, avatarUrl: user.avatarUrl)
             messageText = ""
         }
     }
