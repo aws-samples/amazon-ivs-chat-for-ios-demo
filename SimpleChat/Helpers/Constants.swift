@@ -18,9 +18,9 @@ enum Constants {
     // Endpoint for the Amazon IVS Chat Demo Backend, which is available on github: https://github.com/aws-samples/amazon-ivs-chat-web-demo/tree/main/serverless
     static let apiUrl = ""
 
-    // Chat websocket address
-    // The websocket endpoint for the chat room: wss://edge.ivschat.<AWS_REGION>.amazonaws.com
-    static let chatWebsocket = ""
+    // AWS Region
+    // The aws region for the chat room itself: 'arn:aws:ivschat:<AWS_REGION>:012345678910:room/ABCDEFGHIJK'
+    static let awsRegion = ""
 
     // Chat room id
     static let chatRoomId = ""

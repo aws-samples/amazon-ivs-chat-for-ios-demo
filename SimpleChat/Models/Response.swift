@@ -23,6 +23,12 @@ struct EventAttributes: Decodable {
     }
 }
 
+struct AuthToken: Decodable {
+    let token: String
+    let sessionExpirationTime: String
+    let tokenExpirationTime: String
+}
+
 struct Response: Decodable {
     let type: ResponseType
     let id: String?

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct StickersView: View {
-    @StateObject var viewModel: ViewModel
+    @EnvironmentObject var viewModel: ViewModel
 
     private let stickerSize: CGFloat = 100
 
@@ -27,7 +27,7 @@ struct StickersView: View {
                             .frame(width: stickerSize, height: stickerSize)
                             .onTapGesture {
                                 guard let user = viewModel.user else { return }
-                                viewModel.websocket.sendMessage(url, type: .sticker, avatarUrl: user.avatarUrl)
+                                viewModel.sendMessage(url, type: .sticker, avatarUrl: user.avatarUrl)
                             }
                     }
                 }
