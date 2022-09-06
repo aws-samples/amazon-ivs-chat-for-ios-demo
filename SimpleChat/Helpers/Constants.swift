@@ -16,14 +16,14 @@ enum Constants {
 
     // Authorization endpoint
     // Endpoint for the Amazon IVS Chat Demo Backend, which is available on github: https://github.com/aws-samples/amazon-ivs-chat-web-demo/tree/main/serverless
-    static let apiUrl = "https://s4dzmyuqzc.execute-api.us-west-2.amazonaws.com/Prod/auth"
+    static let apiUrl = ""
 
     // Chat websocket address
     // The websocket endpoint for the chat room: wss://edge.ivschat.<AWS_REGION>.amazonaws.com
-    static let awsRegion = "us-west-2"
+    static let awsRegion = ""
 
     // Chat room id
-    static let chatRoomId = "arn:aws:ivschat:us-west-2:298083573632:room/EXQABCI7oeSJ"
+    static let chatRoomId = ""
 
     // Timeout after which received messages disappear
     static let messagesTimeout = 20.0
