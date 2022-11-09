@@ -27,7 +27,7 @@ struct TokenRequest: Codable {
 
     func fetchResponse() async throws -> Data {
         print("ℹ Requesting new auth token")
-        guard let url = URL(string: Constants.apiUrl) else {
+        guard let url = URL(string: "\(Constants.apiUrl)/auth") else {
             print("❌ Server url not set in Constats.swift")
             throw TokenRequestError.serverNotSet
         }
