@@ -36,10 +36,17 @@ class ViewModel: ObservableObject {
             UserDefaults.standard.setValue(useCustomStreamUrl, forKey: Constants.kUseCustomLiveStreamUrl)
         }
     }
+    @Published var useBulletChatMode: Bool {
+        didSet {
+            UserDefaults.standard.setValue(useBulletChatMode, forKey: Constants.kUseBulletChatMode)
+        }
+    }
 
     init() {
-        let useCustom = UserDefaults.standard.bool(forKey: Constants.kUseCustomLiveStreamUrl)
-        self.useCustomStreamUrl = useCustom
+        let useCustomUrl = UserDefaults.standard.bool(forKey: Constants.kUseCustomLiveStreamUrl)
+        let useBulletChat = UserDefaults.standard.bool(forKey: Constants.kUseBulletChatMode)
+        self.useCustomStreamUrl = useCustomUrl
+        self.useBulletChatMode = useBulletChat
         self.customPlaybackUrl = UserDefaults.standard.string(forKey: Constants.kLiveStreamUrl) ?? ""
         self.tokenRequest = TokenRequest(
             arn: Constants.chatRoomId,

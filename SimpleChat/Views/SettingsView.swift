@@ -13,6 +13,7 @@ struct SettingsView: View {
 
     @State private var playbackUrl: String
     @State private var useCustomStreamUrl: Bool
+    @State private var useBulletChatMode: Bool
     @State private var isValid: Bool = true
 
     private var isPlaybackUrlValid: Bool {
@@ -25,6 +26,7 @@ struct SettingsView: View {
         self.viewModel = viewModel
         self._isPresent = isPresent
         self.useCustomStreamUrl = viewModel.useCustomStreamUrl
+        self.useBulletChatMode = viewModel.useBulletChatMode
         self.playbackUrl = viewModel.customPlaybackUrl
     }
 
@@ -42,6 +44,7 @@ struct SettingsView: View {
             Spacer()
             Button("Save") {
                 viewModel.useCustomStreamUrl = useCustomStreamUrl
+                viewModel.useBulletChatMode = useBulletChatMode
                 viewModel.customPlaybackUrl = playbackUrl
                 isPresent.toggle()
             }
@@ -104,9 +107,33 @@ struct SettingsView: View {
                     Text("Use your own custom Amazon IVS stream in this demo")
                         .foregroundColor(.gray)
                         .font(Constants.fAppSmall)
+                        .fontWeight(.semibold)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                 }
+
+                HStack {
+                    Text("Bullet chat mode")
+                        .foregroundColor(.white)
+                        .font(Constants.fAppTitleRegular)
+                        .padding(.horizontal, 16)
+                    Spacer()
+                    Toggle("", isOn: $useBulletChatMode)
+                        .padding(.horizontal, 16)
+                }
+                .frame(height: 44)
+                .background(Constants.backgroundInput)
+                .padding(.top, 20)
+                .onTapGesture {
+                    useBulletChatMode.toggle()
+                }
+
+                Text("When enabled, messages will float across the screen as “bullet chat” messages.")
+                    .foregroundColor(.gray)
+                    .font(Constants.fAppSmall)
+                    .fontWeight(.semibold)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
 
                 if viewModel.user != nil {
                     Button("Log out") {

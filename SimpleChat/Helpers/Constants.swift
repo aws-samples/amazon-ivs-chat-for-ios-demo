@@ -74,5 +74,6 @@ enum Constants {
 
     // Persistence keys
     static let kUseCustomLiveStreamUrl = "use_custom_live_stream_url"
+    static let kUseBulletChatMode = "use_bullet_chat_mode"
     static let kLiveStreamUrl = "live_stream_url"
 }
