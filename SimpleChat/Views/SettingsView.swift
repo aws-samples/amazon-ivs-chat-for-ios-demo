@@ -44,6 +44,11 @@ struct SettingsView: View {
             Spacer()
             Button("Save") {
                 viewModel.useCustomStreamUrl = useCustomStreamUrl
+                if !viewModel.useBulletChatMode && useBulletChatMode {
+                    viewModel.infoMessage = "Bullet chat mode enabled"
+                } else if viewModel.useBulletChatMode && !useBulletChatMode {
+                    viewModel.infoMessage = "Bullet chat mode disabled"
+                }
                 viewModel.useBulletChatMode = useBulletChatMode
                 viewModel.customPlaybackUrl = playbackUrl
                 isPresent.toggle()

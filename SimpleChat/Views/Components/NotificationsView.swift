@@ -45,6 +45,23 @@ struct NotificationsView: View {
                         }
                     }
             }
+
+            if let infoMessage = viewModel.infoMessage {
+                NotificationView(
+                    title: "INFO",
+                    image: Image("info"),
+                    message: infoMessage,
+                    backgroundColor: Constants.appBlue
+                )
+                .onTapGesture {
+                    viewModel.infoMessage = nil
+                }
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + Constants.messagesTimeout) {
+                        viewModel.infoMessage = nil
+                    }
+                }
+            }
         }
         .padding(.top, 40)
     }

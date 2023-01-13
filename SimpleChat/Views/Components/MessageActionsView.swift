@@ -17,7 +17,7 @@ struct MessageActionsView: View {
 
             VStack {
                 if let message = selectedMessage {
-                    MessagePreviewView(message: message)
+                    SimpleMessagePreviewView(message: message)
                         .padding(.horizontal, 16)
                 }
 

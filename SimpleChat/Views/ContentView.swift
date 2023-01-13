@@ -37,7 +37,7 @@ struct ContentView: View {
                 }
 
             VStack {
-                MessagesView(selectedMessage: $selectedMessage)
+                ChatView(selectedMessage: $selectedMessage)
                     .padding(.bottom, 20)
                 BottomBarView(viewModel: viewModel, keyboard: keyboard, isLoginPresent: $isLoginPresent, isStickersPresent: $isStickersPresent)
                     .padding(.bottom, 24)

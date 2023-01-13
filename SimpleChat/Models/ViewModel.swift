@@ -18,6 +18,7 @@ class ViewModel: ObservableObject {
     @Published var messages: [AnyHashable] = []
     @Published var errorMessage: String?
     @Published var successMessage: String?
+    @Published var infoMessage: String?
 
     @Published var user: User? {
         didSet {
