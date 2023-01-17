@@ -38,7 +38,7 @@ struct BulletChatView: View {
                     BulletMessageView(
                         bulletMessages: $bulletMessages,
                         bulletMessage: bulletMessage,
-                        animationTime: getRandomAnimationTime()
+                        animationTime: getAnimationTime()
                     )
                 }
             }
@@ -59,13 +59,15 @@ struct BulletChatView: View {
             }
         }
         let targetRow = availableRows.randomElement() ?? 0
+        if let index = availableRows.firstIndex(of: targetRow) {
+            availableRows.remove(at: index)
+        }
         return CGPoint(x: totalWidth, y: CGFloat(targetRow) * rowHeight)
     }
 
-    private func getRandomAnimationTime() -> Double {
-        var time: Double = 6
-        time += Double.random(in: 0.5...1.5)
-        return time
+    private func getAnimationTime() -> Double {
+        var baseTime: Double = 6
+        return baseTime + Double.random(in: 0.5...1.5)
     }
 }
 
@@ -102,7 +104,6 @@ struct BulletMessageView: View {
                         }
                 }
             }
-            .frame(width: proxy.size.width, height: proxy.size.height)
             .position(x: (bulletMessage?.position.x ?? 0) + proxy.size.width / 2, y: bulletMessage?.position.y ?? 0)
             .onAppear {
                 withAnimation {
