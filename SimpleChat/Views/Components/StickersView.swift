@@ -18,7 +18,6 @@ struct StickersView: View {
                 .foregroundColor(.white)
                 .font(Constants.fAppBold)
                 .padding(.top, 20)
-                .padding(.bottom, 0)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHGrid(rows: [GridItem(.fixed(stickerSize)), GridItem(.fixed(stickerSize))], alignment: .center, spacing: 8) {
@@ -35,7 +34,7 @@ struct StickersView: View {
             }
         }
         .background(Constants.background)
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: UIScreen.main.bounds.width)
         .transition(.move(edge: .bottom))
     }
 }

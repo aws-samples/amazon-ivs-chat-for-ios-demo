@@ -30,10 +30,28 @@ struct ContentView: View {
             .padding(.horizontal, -8)
     }
 
+    @ViewBuilder func stickers() -> some View {
+        if isStickersPresent {
+            StickersView()
+                .padding(.bottom, -26)
+                .padding(.top, 20)
+                .offset(y: 290)
+        }
+    }
+
     private func dismissInputViews() {
         UIApplication.shared
             .sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-        isStickersPresent = false
+        withAnimation {
+            isStickersPresent = false
+        }
+    }
+
+    private func getBottomPadding() -> CGFloat {
+        var padding: CGFloat = 25
+        padding = isStickersPresent ? 300 : padding
+        padding = keyboard.currentHeight == 0 ? padding : keyboard.currentHeight + 8
+        return padding
     }
 
     var body: some View {
@@ -52,18 +70,14 @@ struct ContentView: View {
                     .onTapGesture {
                         dismissInputViews()
                     }
-                BottomBarView(viewModel: viewModel, keyboard: keyboard, isLoginPresent: $isLoginPresent, isStickersPresent: $isStickersPresent)
 
-                if isStickersPresent {
-                    StickersView()
-                        .padding(.bottom, -26)
-                        .padding(.top, 20)
-                }
+                BottomBarView(viewModel: viewModel, keyboard: keyboard, isLoginPresent: $isLoginPresent, isStickersPresent: $isStickersPresent)
             }
             .overlay(topBar(), alignment: .topTrailing)
             .overlay(NotificationsView(), alignment: .top)
-            .animation(.easeOut(duration: 0.3), value: isStickersPresent)
-            .padding(.bottom, keyboard.currentHeight == 0 ? 25 : keyboard.currentHeight + 8 )
+            .overlay(stickers(), alignment: .bottom)
+            .padding(.bottom, getBottomPadding())
+            .padding(.top, 40)
             .onTapGesture {
                 dismissInputViews()
             }
@@ -77,7 +91,7 @@ struct ContentView: View {
 
             if isLoginPresent {
                 LoginView(isPresent: $isLoginPresent)
-                    .padding(.bottom, keyboard.currentHeight * 0.7)
+                    .padding(.bottom, keyboard.currentHeight * 0.6)
                     .onChange(of: viewModel.errorMessage) { errorMessage in
                         isLoginPresent = errorMessage == nil
                     }
