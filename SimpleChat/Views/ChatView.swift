@@ -12,10 +12,13 @@ struct ChatView: View {
     @Binding var selectedMessage: Message?
 
     var body: some View {
-        if viewModel.useBulletChatMode {
-            BulletChatView()
-        } else {
-            SimpleChatView(selectedMessage: $selectedMessage)
+        GeometryReader { geometry in
+            if viewModel.useBulletChatMode {
+                BulletChatView()
+                    .frame(minHeight: geometry.size.height, maxHeight: geometry.size.height)
+            } else {
+                SimpleChatView(selectedMessage: $selectedMessage)
+            }
         }
     }
 }

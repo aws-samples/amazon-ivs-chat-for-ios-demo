@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct BulletMessage: Identifiable {
     var id: UUID
@@ -21,20 +22,23 @@ struct BulletMessage: Identifiable {
 
 struct BulletChatView: View {
     @EnvironmentObject var viewModel: ViewModel
+    @ObservedObject private var keyboard = KeyboardResponder()
+
     @State var bulletMessages: [BulletMessage] = []
     @State var availableRows: [Int] = []
 
     private let rowCount: Int = 7
-    private let totalHeight = UIScreen.main.bounds.height - 150
     private let totalWidth = UIScreen.main.bounds.width
     private var rowHeight: CGFloat {
-        totalHeight / CGFloat(rowCount)
+        (UIScreen.main.bounds.height - 200) / CGFloat(rowCount)
     }
 
     var body: some View {
         ZStack {
-            ForEach(bulletMessages) { bulletMessage in
-                GeometryReader { geometry in
+            if bulletMessages.isEmpty {
+                Text("").frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ForEach(bulletMessages) { bulletMessage in
                     BulletMessageView(
                         bulletMessages: $bulletMessages,
                         bulletMessage: bulletMessage,
@@ -43,7 +47,6 @@ struct BulletChatView: View {
                 }
             }
         }
-        .frame(height: totalHeight)
         .onChange(of: viewModel.messages) { messages in
             if let message = messages.last as? Message {
                 let newBulletMessage = BulletMessage(message: message, position: getPositionForNextBulletMessage())
@@ -66,7 +69,7 @@ struct BulletChatView: View {
     }
 
     private func getAnimationTime() -> Double {
-        var baseTime: Double = 6
+        let baseTime: Double = 4
         return baseTime + Double.random(in: 0.5...1.5)
     }
 }
@@ -76,6 +79,9 @@ struct BulletMessageView: View {
     var bulletMessage: BulletMessage?
     var animationTime: Double = 0
     @State private var xOffset: CGFloat = 0
+    @State private var contentWidth: CGFloat = 0
+
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     init(bulletMessages: Binding<[BulletMessage]>, bulletMessage: BulletMessage, animationTime: Double) {
         self._bulletMessages = bulletMessages
@@ -85,7 +91,7 @@ struct BulletMessageView: View {
     }
 
     var body: some View {
-        GeometryReader { proxy in
+        GeometryReader { geometry in
             HStack {
                 switch bulletMessage?.message.attributes?.type ?? .message {
                     case .message:
@@ -96,28 +102,37 @@ struct BulletMessageView: View {
                             .padding(.vertical, 8)
                             .lineLimit(1)
                             .fixedSize()
+                            .onAppear {
+                                let label = UILabel(frame: CGRectZero)
+                                label.text = bulletMessage?.message.content ?? ""
+                                label.font = UIFont.systemFont(ofSize: 24)
+                                contentWidth = label.intrinsicContentSize.width
+                            }
                     case .sticker:
                         if let stickerSrc = bulletMessage?.message.attributes?.stickerSrc {
                             RemoteImageView(imageURL: stickerSrc)
                                 .frame(width: 150, height: 150)
                                 .transition(.identity)
+                                .onAppear {
+                                    contentWidth = 120
+                                }
                         }
                 }
             }
-            .position(x: (bulletMessage?.position.x ?? 0) + proxy.size.width / 2, y: bulletMessage?.position.y ?? 0)
+            .position(x: geometry.size.width + contentWidth / 2, y: bulletMessage?.position.y ?? 0)
             .onAppear {
-                withAnimation {
-                    xOffset = -((bulletMessage?.position.x ?? 0) + proxy.size.width) * 2
-                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    xOffset = -geometry.size.width - contentWidth
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + animationTime) {
-                    if let index = bulletMessages.firstIndex(where: { $0.id.uuidString == bulletMessage?.id.uuidString }) {
-                        bulletMessages.remove(at: index)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + animationTime) {
+                        if let index = bulletMessages.firstIndex(where: { $0.id.uuidString == bulletMessage?.id.uuidString }) {
+                            bulletMessages.remove(at: index)
+                        }
                     }
                 }
             }
             .animation(.linear(duration: animationTime), value: xOffset)
-            .offset(x: xOffset + proxy.size.width)
+            .offset(x: xOffset)
         }
     }
 }

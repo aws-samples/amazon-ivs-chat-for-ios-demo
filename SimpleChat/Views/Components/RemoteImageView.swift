@@ -20,26 +20,45 @@ struct RemoteImageView: View {
         Image(uiImage: image)
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .onReceive(imageLoader.didChange) { data in
-                self.image = UIImage(data: data) ?? UIImage()
+            .onReceive(imageLoader.didChange) { image in
+                self.image = image
             }
     }
 }
 
 class ImageLoader: ObservableObject {
-    var didChange = PassthroughSubject<Data, Never>()
-    var data = Data() {
-        didSet { didChange.send(data) }
+    var didChange = CurrentValueSubject<UIImage, Never>(UIImage())
+    @Published var image = UIImage() {
+        didSet { didChange.send(image) }
     }
 
     init(urlString: String) {
         guard let url = URL(string: urlString) else { return }
-        let task = URLSession.shared.dataTask(with: url) { data, _, _ in
-            guard let data = data else { return }
-            DispatchQueue.main.async {
-                self.data = data
+        if let cachedImage = ImageCache.singleton.getImage(from: url) {
+            self.image = cachedImage
+        } else {
+            let task = URLSession.shared.dataTask(with: url) { data, _, _ in
+                guard let data = data, let loadedImage = UIImage(data: data) else { return }
+                ImageCache.singleton.set(loadedImage, url: urlString)
+                DispatchQueue.main.async {
+                    self.image = loadedImage
+                }
             }
+            task.resume()
         }
-        task.resume()
+    }
+}
+
+final class ImageCache {
+    public static let singleton = ImageCache()
+    private var cache = NSCache<NSString, UIImage>()
+
+    func getImage(from url: URL) -> UIImage? {
+        let cacheUrl = url.absoluteString
+        return cache.object(forKey: cacheUrl as NSString)
+    }
+
+    func set(_ image: UIImage, url: String) {
+        ImageCache.singleton.cache.setObject(image, forKey: url as NSString)
     }
 }
