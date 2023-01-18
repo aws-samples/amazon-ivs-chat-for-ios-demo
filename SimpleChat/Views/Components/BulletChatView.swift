@@ -11,12 +11,12 @@ import Combine
 struct BulletMessage: Identifiable {
     var id: UUID
     var message: Message
-    var position: CGPoint
+    var relativeHeightPosition: CGFloat
 
-    init(message: Message, position: CGPoint) {
+    init(message: Message, relativeHeightPosition: CGFloat) {
         self.id = UUID()
         self.message = message
-        self.position = position
+        self.relativeHeightPosition = relativeHeightPosition
     }
 }
 
@@ -28,10 +28,6 @@ struct BulletChatView: View {
     @State var availableRows: [Int] = []
 
     private let rowCount: Int = 7
-    private let totalWidth = UIScreen.main.bounds.width
-    private var rowHeight: CGFloat {
-        (UIScreen.main.bounds.height - 200) / CGFloat(rowCount)
-    }
 
     var body: some View {
         ZStack {
@@ -49,13 +45,14 @@ struct BulletChatView: View {
         }
         .onChange(of: viewModel.messages) { messages in
             if let message = messages.last as? Message {
-                let newBulletMessage = BulletMessage(message: message, position: getPositionForNextBulletMessage())
+                let newBulletMessage = BulletMessage(message: message,
+                                                     relativeHeightPosition: getHeightPositionForBulletMessage())
                 bulletMessages.append(newBulletMessage)
             }
         }
     }
 
-    private func getPositionForNextBulletMessage() -> CGPoint {
+    private func getHeightPositionForBulletMessage() -> CGFloat {
         if availableRows.isEmpty {
             for row in 1...rowCount {
                 availableRows.append(row)
@@ -65,7 +62,7 @@ struct BulletChatView: View {
         if let index = availableRows.firstIndex(of: targetRow) {
             availableRows.remove(at: index)
         }
-        return CGPoint(x: totalWidth, y: CGFloat(targetRow) * rowHeight)
+        return 1 / CGFloat(rowCount) * CGFloat(targetRow)
     }
 
     private func getAnimationTime() -> Double {
@@ -76,12 +73,13 @@ struct BulletChatView: View {
 
 struct BulletMessageView: View {
     @Binding var bulletMessages: [BulletMessage]
+
     var bulletMessage: BulletMessage?
     var animationTime: Double = 0
+
     @State private var xOffset: CGFloat = 0
     @State private var contentWidth: CGFloat = 0
-
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State private var yPosition: CGFloat = 0
 
     init(bulletMessages: Binding<[BulletMessage]>, bulletMessage: BulletMessage, animationTime: Double) {
         self._bulletMessages = bulletMessages
@@ -112,15 +110,14 @@ struct BulletMessageView: View {
                         if let stickerSrc = bulletMessage?.message.attributes?.stickerSrc {
                             RemoteImageView(imageURL: stickerSrc)
                                 .frame(width: 150, height: 150)
-                                .transition(.identity)
                                 .onAppear {
                                     contentWidth = 120
                                 }
                         }
                 }
             }
-            .position(x: geometry.size.width + contentWidth / 2, y: bulletMessage?.position.y ?? 0)
             .onAppear {
+                yPosition = (bulletMessage?.relativeHeightPosition ?? 0) * geometry.size.height
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     xOffset = -geometry.size.width - contentWidth
 
@@ -131,8 +128,12 @@ struct BulletMessageView: View {
                     }
                 }
             }
+            .position(x: geometry.size.width + contentWidth / 2, y: yPosition)
             .animation(.linear(duration: animationTime), value: xOffset)
             .offset(x: xOffset)
+            .onChange(of: geometry.size.height) { newValue in
+                yPosition = (bulletMessage?.relativeHeightPosition ?? 0) * geometry.size.height
+            }
         }
     }
 }

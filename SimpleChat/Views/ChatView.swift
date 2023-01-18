@@ -16,6 +16,7 @@ struct ChatView: View {
             if viewModel.useBulletChatMode {
                 BulletChatView()
                     .frame(minHeight: geometry.size.height, maxHeight: geometry.size.height)
+                    .frame(width: geometry.size.width)
             } else {
                 SimpleChatView(selectedMessage: $selectedMessage)
             }

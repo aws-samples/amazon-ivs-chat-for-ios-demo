@@ -25,66 +25,69 @@ struct ContentView: View {
             Image(systemName: "gearshape.fill")
                 .foregroundColor(.white)
                 .frame(width: 40, height: 40)
-                .padding(.top, 80)
         })
             .frame(width: 80, height: 50)
             .padding(.horizontal, -8)
     }
 
+    private func dismissInputViews() {
+        UIApplication.shared
+            .sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        isStickersPresent = false
+    }
+
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                Constants.background.ignoresSafeArea()
+        ZStack {
+            Constants.background.ignoresSafeArea()
 
-                PlayerView()
-                    .onAppear {
-                        viewModel.startPlayback()
+            PlayerView()
+                .onAppear {
+                    viewModel.startPlayback()
+                }
+
+            VStack(spacing: 0) {
+                ChatView(selectedMessage: $selectedMessage)
+                    .padding(.bottom, 20)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        dismissInputViews()
                     }
+                BottomBarView(viewModel: viewModel, keyboard: keyboard, isLoginPresent: $isLoginPresent, isStickersPresent: $isStickersPresent)
 
-                VStack(spacing: 0) {
-                    ChatView(selectedMessage: $selectedMessage)
-                        .padding(.bottom, 20)
-                    BottomBarView(viewModel: viewModel, keyboard: keyboard, isLoginPresent: $isLoginPresent, isStickersPresent: $isStickersPresent)
+                if isStickersPresent {
+                    StickersView()
+                        .padding(.bottom, -26)
+                        .padding(.top, 20)
+                }
+            }
+            .overlay(topBar(), alignment: .topTrailing)
+            .overlay(NotificationsView(), alignment: .top)
+            .animation(.easeOut(duration: 0.3), value: isStickersPresent)
+            .padding(.bottom, keyboard.currentHeight == 0 ? 25 : keyboard.currentHeight + 8 )
+            .onTapGesture {
+                dismissInputViews()
+            }
+            .sheet(isPresented: $isSettingsPresent, content: {
+                SettingsView(viewModel: viewModel, isPresent: $isSettingsPresent)
+            })
 
-                    if isStickersPresent {
-                        StickersView()
-                            .padding(.bottom, -26)
-                            .padding(.top, 20)
+            if let _ = selectedMessage {
+                MessageActionsView(selectedMessage: $selectedMessage)
+            }
+
+            if isLoginPresent {
+                LoginView(isPresent: $isLoginPresent)
+                    .padding(.bottom, keyboard.currentHeight * 0.7)
+                    .onChange(of: viewModel.errorMessage) { errorMessage in
+                        isLoginPresent = errorMessage == nil
                     }
-                }
-                .overlay(topBar(), alignment: .topTrailing)
-                .overlay(NotificationsView(), alignment: .top)
-                .animation(.easeOut(duration: 0.3), value: isStickersPresent)
-                .frame(maxHeight: geometry.size.height)
-                .padding(.bottom, keyboard.currentHeight)
-                .onTapGesture {
-                    UIApplication.shared
-                        .sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    isStickersPresent = false
-                }
-                .sheet(isPresented: $isSettingsPresent, content: {
-                    SettingsView(viewModel: viewModel, isPresent: $isSettingsPresent)
-                })
-
-                if let _ = selectedMessage {
-                    MessageActionsView(selectedMessage: $selectedMessage)
-                }
-
-                if isLoginPresent {
-                    LoginView(isPresent: $isLoginPresent)
-                        .padding(.bottom, keyboard.currentHeight * 0.7)
-                        .onChange(of: viewModel.errorMessage) { errorMessage in
-                            isLoginPresent = errorMessage == nil
-                        }
-                }
-
             }
-            .ignoresSafeArea(.all)
-            .frame(maxWidth: UIScreen.main.bounds.width)
-            .environmentObject(viewModel)
-            .onAppear {
-                viewModel.connectToChatRoom()
-            }
+
+        }
+        .ignoresSafeArea(.all)
+        .environmentObject(viewModel)
+        .onAppear {
+            viewModel.connectToChatRoom()
         }
     }
 }

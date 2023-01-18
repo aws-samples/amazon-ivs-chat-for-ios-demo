@@ -63,7 +63,7 @@ struct NotificationsView: View {
                 }
             }
         }
-        .padding(.top, 40)
+        .padding(.top, 8)
     }
 }
 
