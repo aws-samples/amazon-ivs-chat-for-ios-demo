@@ -11,7 +11,7 @@ import AmazonIVSChatMessaging
 class ViewModel: ObservableObject {
     let playerModel = PlayerModel()
 
-    private var tokenRequest: TokenRequest
+    private var tokenRequest: TokenRequest?
     private var room: ChatRoom?
 
     @Published var isAuthorised: Bool = false
@@ -22,7 +22,7 @@ class ViewModel: ObservableObject {
 
     @Published var user: User? {
         didSet {
-            setupChatRoom()
+            setupTokenRequest()
             connectToChatRoom()
         }
     }
@@ -49,22 +49,10 @@ class ViewModel: ObservableObject {
         self.useCustomStreamUrl = useCustomUrl
         self.useBulletChatMode = useBulletChat
         self.customPlaybackUrl = UserDefaults.standard.string(forKey: Constants.kLiveStreamUrl) ?? ""
-        self.tokenRequest = TokenRequest(
-            arn: Constants.chatRoomId,
-            awsRegion: Constants.awsRegion,
-            durationInMinutes: 180,
-            attributes: [:],
-            capabilities: [],
-            user: nil)
-        self.room = ChatRoom(awsRegion: tokenRequest.awsRegion) {
-            let data = try await self.tokenRequest.fetchResponse()
-            let authToken = try JSONDecoder().decode(AuthToken.self, from: data)
-            return ChatToken(token: authToken.token)
-        }
-        room?.delegate = self
+        setupTokenRequest()
     }
 
-    private func setupChatRoom() {
+    private func setupTokenRequest() {
         self.tokenRequest = TokenRequest(
             arn: Constants.chatRoomId,
             awsRegion: Constants.awsRegion,
@@ -72,16 +60,6 @@ class ViewModel: ObservableObject {
             attributes: [:],
             capabilities: user != nil ? [.sendMessage, .deleteMessage, .disconnectUser] : [],
             user: user)
-        if room != nil {
-            self.room?.disconnect()
-            self.room = nil
-        }
-        self.room = ChatRoom(awsRegion: tokenRequest.awsRegion) {
-            let data = try await self.tokenRequest.fetchResponse()
-            let authToken = try JSONDecoder().decode(AuthToken.self, from: data)
-            return ChatToken(token: authToken.token)
-        }
-        room?.delegate = self
     }
 
     func connectToChatRoom() {
@@ -89,6 +67,21 @@ class ViewModel: ObservableObject {
             if room?.state != .disconnected {
                 room?.disconnect()
             }
+
+            guard let tokenRequest = tokenRequest else {
+                print("❌ Token request missing")
+                return
+            }
+            if room != nil {
+                room?.delegate = nil
+                room = nil
+            }
+            room = ChatRoom(awsRegion: tokenRequest.awsRegion) {
+                let data = try await tokenRequest.fetchResponse()
+                let authToken = try JSONDecoder().decode(AuthToken.self, from: data)
+                return ChatToken(token: authToken.token)
+            }
+            room?.delegate = self
             try await room?.connect()
         }
     }
