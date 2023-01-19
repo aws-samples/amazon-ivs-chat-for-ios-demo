@@ -107,7 +107,9 @@ class ViewModel: ObservableObject {
                           onSuccess: { _ in },
                           onFailure: { error in
             print("❌ error sending message: \(error)")
-            self.errorMessage = error.localizedDescription
+            DispatchQueue.main.async {
+                self.errorMessage = error.localizedDescription
+            }
         })
     }
 
@@ -120,7 +122,9 @@ class ViewModel: ObservableObject {
         },
                             onFailure: { error in
             print("❌ error deleting message: \(error)")
-            self.errorMessage = error.localizedDescription
+            DispatchQueue.main.async {
+                self.errorMessage = error.localizedDescription
+            }
         })
     }
 
