@@ -64,15 +64,18 @@ enum Constants {
     static let backgroundInput = Color(.sRGB, red: 0.09, green: 0.09, blue: 0.09, opacity: 1)
     static let appRed = Color(.sRGB, red: 0.8, green: 0.26, blue: 0.18, opacity: 1)
     static let appGreen = Color(.sRGB, red: 0.20, green: 0.55, blue: 0.26)
+    static let appBlue = Color(.sRGB, red: 0.12, green: 0.37, blue: 0.87)
 
     // App fonts
     static let fAppSmall = Font.system(size: 12)
     static let fAppRegular = Font.system(size: 15)
+    static let fAppLarge = Font.system(size: 24)
     static let fAppBold = Font.system(size: 15, weight: .bold)
     static let fAppTitleBold = Font.system(size: 17, weight: .bold)
     static let fAppTitleRegular = Font.system(size: 17)
 
     // Persistence keys
     static let kUseCustomLiveStreamUrl = "use_custom_live_stream_url"
+    static let kUseBulletChatMode = "use_bullet_chat_mode"
     static let kLiveStreamUrl = "live_stream_url"
 }

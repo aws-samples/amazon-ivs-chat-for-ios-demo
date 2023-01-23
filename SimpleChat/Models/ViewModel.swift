@@ -11,17 +11,18 @@ import AmazonIVSChatMessaging
 class ViewModel: ObservableObject {
     let playerModel = PlayerModel()
 
-    private var tokenRequest: TokenRequest
+    private var tokenRequest: TokenRequest?
     private var room: ChatRoom?
 
     @Published var isAuthorised: Bool = false
     @Published var messages: [AnyHashable] = []
     @Published var errorMessage: String?
     @Published var successMessage: String?
+    @Published var infoMessage: String?
 
     @Published var user: User? {
         didSet {
-            setupChatRoom()
+            setupTokenRequest()
             connectToChatRoom()
         }
     }
@@ -36,27 +37,22 @@ class ViewModel: ObservableObject {
             UserDefaults.standard.setValue(useCustomStreamUrl, forKey: Constants.kUseCustomLiveStreamUrl)
         }
     }
-
-    init() {
-        let useCustom = UserDefaults.standard.bool(forKey: Constants.kUseCustomLiveStreamUrl)
-        self.useCustomStreamUrl = useCustom
-        self.customPlaybackUrl = UserDefaults.standard.string(forKey: Constants.kLiveStreamUrl) ?? ""
-        self.tokenRequest = TokenRequest(
-            arn: Constants.chatRoomId,
-            awsRegion: Constants.awsRegion,
-            durationInMinutes: 180,
-            attributes: [:],
-            capabilities: [],
-            user: nil)
-        self.room = ChatRoom(awsRegion: tokenRequest.awsRegion) {
-            let data = try await self.tokenRequest.fetchResponse()
-            let authToken = try JSONDecoder().decode(AuthToken.self, from: data)
-            return ChatToken(token: authToken.token)
+    @Published var useBulletChatMode: Bool {
+        didSet {
+            UserDefaults.standard.setValue(useBulletChatMode, forKey: Constants.kUseBulletChatMode)
         }
-        room?.delegate = self
     }
 
-    private func setupChatRoom() {
+    init() {
+        let useCustomUrl = UserDefaults.standard.bool(forKey: Constants.kUseCustomLiveStreamUrl)
+        let useBulletChat = UserDefaults.standard.bool(forKey: Constants.kUseBulletChatMode)
+        self.useCustomStreamUrl = useCustomUrl
+        self.useBulletChatMode = useBulletChat
+        self.customPlaybackUrl = UserDefaults.standard.string(forKey: Constants.kLiveStreamUrl) ?? ""
+        setupTokenRequest()
+    }
+
+    private func setupTokenRequest() {
         self.tokenRequest = TokenRequest(
             arn: Constants.chatRoomId,
             awsRegion: Constants.awsRegion,
@@ -64,16 +60,6 @@ class ViewModel: ObservableObject {
             attributes: [:],
             capabilities: user != nil ? [.sendMessage, .deleteMessage, .disconnectUser] : [],
             user: user)
-        if room != nil {
-            self.room?.disconnect()
-            self.room = nil
-        }
-        self.room = ChatRoom(awsRegion: tokenRequest.awsRegion) {
-            let data = try await self.tokenRequest.fetchResponse()
-            let authToken = try JSONDecoder().decode(AuthToken.self, from: data)
-            return ChatToken(token: authToken.token)
-        }
-        room?.delegate = self
     }
 
     func connectToChatRoom() {
@@ -81,6 +67,21 @@ class ViewModel: ObservableObject {
             if room?.state != .disconnected {
                 room?.disconnect()
             }
+
+            guard let tokenRequest = tokenRequest else {
+                print("❌ Token request missing")
+                return
+            }
+            if room != nil {
+                room?.delegate = nil
+                room = nil
+            }
+            room = ChatRoom(awsRegion: tokenRequest.awsRegion) {
+                let data = try await tokenRequest.fetchResponse()
+                let authToken = try JSONDecoder().decode(AuthToken.self, from: data)
+                return ChatToken(token: authToken.token)
+            }
+            room?.delegate = self
             try await room?.connect()
         }
     }
@@ -106,7 +107,9 @@ class ViewModel: ObservableObject {
                           onSuccess: { _ in },
                           onFailure: { error in
             print("❌ error sending message: \(error)")
-            self.errorMessage = error.localizedDescription
+            DispatchQueue.main.async {
+                self.errorMessage = error.localizedDescription
+            }
         })
     }
 
@@ -119,7 +122,9 @@ class ViewModel: ObservableObject {
         },
                             onFailure: { error in
             print("❌ error deleting message: \(error)")
-            self.errorMessage = error.localizedDescription
+            DispatchQueue.main.async {
+                self.errorMessage = error.localizedDescription
+            }
         })
     }
 

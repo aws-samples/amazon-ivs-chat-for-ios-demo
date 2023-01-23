@@ -1,13 +1,13 @@
 //
-//  MessagesView.swift
+//  SimpleChatView.swift
 //  SimpleChat
 //
-//  Created by Uldis Zingis on 07/09/2021.
-//  
+//  Created by Uldis Zingis on 12/01/2023.
+//
 
 import SwiftUI
 
-struct MessagesView: View {
+struct SimpleChatView: View {
     @EnvironmentObject var viewModel: ViewModel
     @Binding var selectedMessage: Message?
 
@@ -18,7 +18,7 @@ struct MessagesView: View {
                     LazyVStack(alignment: .leading) {
                         ForEach(viewModel.messages, id: \.self) { messageObject in
                             if let message = messageObject as? Message {
-                                MessageView(
+                                SimpleMessageView(
                                     message: message,
                                     selectedMessage: $selectedMessage)
                             } else if let success = messageObject as? SuccessMessage {
@@ -47,7 +47,7 @@ struct MessagesView: View {
     }
 }
 
-struct MessageView: View {
+struct SimpleMessageView: View {
     @EnvironmentObject var viewModel: ViewModel
     @State var message: Message
     @Binding var selectedMessage: Message?
@@ -57,7 +57,7 @@ struct MessageView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            MessagePreviewView(message: message)
+            SimpleMessagePreviewView(message: message)
         }
         .offset(y: offsetY)
         .opacity(opacity)
@@ -80,7 +80,7 @@ struct MessageView: View {
     }
 }
 
-struct MessagePreviewView: View {
+struct SimpleMessagePreviewView: View {
     @State var message: Message
     @State private var stickerScale: CGFloat = 0
 
@@ -157,3 +157,4 @@ struct SystemMessageView: View {
         }
     }
 }
+
