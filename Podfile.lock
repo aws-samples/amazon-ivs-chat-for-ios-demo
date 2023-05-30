@@ -2,11 +2,11 @@ PODS:
   - AmazonIVSChat (1.0.0):
     - AmazonIVSChat/Messaging (= 1.0.0)
   - AmazonIVSChat/Messaging (1.0.0)
-  - AmazonIVSPlayer (1.17.0)
+  - AmazonIVSPlayer (1.19.0)
 
 DEPENDENCIES:
   - AmazonIVSChat (~> 1.0.0)
-  - AmazonIVSPlayer (~> 1.17.0)
+  - AmazonIVSPlayer (~> 1.19.0)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -15,8 +15,8 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   AmazonIVSChat: 62d4e654c4b16b7e62d43048a0e548efd145f183
-  AmazonIVSPlayer: e64a0a905b60de5760a377eb256895cfae09c694
+  AmazonIVSPlayer: b9498771b74cd05e93c67dd3844bb4e2c453f2aa
 
-PODFILE CHECKSUM: 4dbf2cebdbd09e20c1defe837b6fd2161bda648b
+PODFILE CHECKSUM: e4e93ef3b8b56b4b3e42034f8e721aff64d10156
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.0
