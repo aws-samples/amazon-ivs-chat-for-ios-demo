@@ -18,8 +18,7 @@ To open the demo iOS app, follow these instructions:
 
 1. Clone this repository to your local machine
 2. Install the SDK dependency using CocoaPods. This can be done by running the following commands from the repository folder:
-   * `bundle install`
-   * `bundle exec pod install`
+   * `pod install`
    * For more information about these commands, see [Bundler](https://bundler.io/) and [CocoaPods](https://guides.cocoapods.org/using/getting-started.html).
 3. Open SimpleChat.xcworkspace.
 4. Open Constants.swift and set constants for:
