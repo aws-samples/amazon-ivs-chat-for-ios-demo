@@ -4,7 +4,7 @@ platform :ios, '14.0'
 
 target 'SimpleChat' do
     pod 'AmazonIVSChat', '~> 1.0.0'
-    pod 'AmazonIVSPlayer', '~> 1.20.0'
+    pod 'AmazonIVSPlayer', '~> 1.21.0'
 end
 
 # Allow building for arm64e architecture, which AmazonIVSPlayer supports.
