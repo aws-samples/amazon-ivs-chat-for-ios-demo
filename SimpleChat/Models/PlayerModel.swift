@@ -10,11 +10,10 @@ import AmazonIVSPlayer
 class PlayerModel: ObservableObject {
     let playerDelegate: IVSPlayer.Delegate?
 
-    @Published var playerView: IVSPlayerView?
-    @Published var player: IVSPlayer?
+    @Published var player: IVSPlayer
     @Published var url: String {
         didSet {
-            if oldValue != url, let _ = player {
+            if oldValue != url {
                 play(url)
             }
         }
@@ -23,10 +22,10 @@ class PlayerModel: ObservableObject {
     init() {
         self.url = ""
         self.playerDelegate = PlayerDelegate()
-        self.playerView = IVSPlayerView(frame: CGRect(x: 0,
-                                                      y: 0,
-                                                      width: UIScreen.main.bounds.width,
-                                                      height: UIScreen.main.bounds.height))
+        self.player = IVSPlayer()
+
+        player.delegate = playerDelegate
+        player.muted = Constants.isMuted
 
         if let delegate = playerDelegate as? PlayerDelegate {
             delegate.playerModel = self
@@ -35,17 +34,10 @@ class PlayerModel: ObservableObject {
 
     func play(_ stringUrl: String) {
         url = stringUrl
-        player = IVSPlayer()
-
-        player?.delegate = playerDelegate
-        player?.muted = Constants.isMuted
-
-        playerView?.player = player
-        playerView?.videoGravity = .resizeAspectFill
 
         if let url = URL(string: stringUrl) {
             print("ℹ loading playback url \(stringUrl)")
-            player?.load(url)
+            player.load(url)
         }
     }
 }

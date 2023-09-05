@@ -11,7 +11,7 @@ struct PlayerView: View {
     @EnvironmentObject var viewModel: ViewModel
 
     var body: some View {
-        IVSPlayerViewWrapper(playerView: viewModel.playerModel.playerView)
+        IVSPlayerViewWrapper(playerModel: viewModel.playerModel)
             .background(Color(.sRGB, red: 0.1, green: 0.1, blue: 0.1, opacity: 1))
     }
 }

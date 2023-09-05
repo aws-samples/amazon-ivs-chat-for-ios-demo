@@ -9,15 +9,15 @@ import AmazonIVSPlayer
 import SwiftUI
 
 struct IVSPlayerViewWrapper: UIViewRepresentable {
-    let playerView: IVSPlayerView?
+    let playerModel: PlayerModel
 
     func makeUIView(context: Context) -> IVSPlayerView {
-        guard let view = playerView else {
-            print("ℹ No actual player view passed to wrapper. Returning new IVSPlayerView")
-            return IVSPlayerView()
-        }
-        return view
+        let playerView = IVSPlayerView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        playerView.videoGravity = .resizeAspectFill
+        return playerView
     }
 
-    func updateUIView(_ uiView: IVSPlayerView, context: Context) {}
+    func updateUIView(_ uiView: IVSPlayerView, context: Context) {
+        uiView.player = playerModel.player
+    }
 }
