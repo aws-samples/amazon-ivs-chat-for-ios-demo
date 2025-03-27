@@ -9,7 +9,7 @@ import SwiftUI
 
 enum Constants {
     // Replace this with your own Amazon IVS Playback URL
-    static let playbackUrl = "https://760b256a3da8.us-east-1.playback.live-video.net/api/video/v1/us-east-1.049054135175.channel.6tM2Z9kY16nH.m3u8"
+    static let playbackUrl = "https://4c62a87c1810.us-west-2.playback.live-video.net/api/video/v1/us-west-2.049054135175.channel.XNWkDNKHdq4u.m3u8"
 
     // Player starts muted or not
     static let isMuted: Bool = true
